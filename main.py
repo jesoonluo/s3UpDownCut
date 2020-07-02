@@ -27,11 +27,11 @@ class S3(object):
         self.session = boto3.Session(
             aws_access_key_id=COS_SERVER_PUBLIC_KEY,
             aws_secret_access_key=COS_SERVER_SECRET_KEY,
-            region_name=COS_ENDPOINT,
+            #region_name=COS_ENDPOINT,
         )
         #self.client = boto3.client('s3', endpoint_url='https://cos.ap-guangzhou.myqcloud.com')
         self.s3_source = self.session.resource('s3')
-        self.s3_client = self.session.client('s3')
+        self.s3_client = self.session.client('s3', endpoint_url='https://cos.ap-guangzhou.myqcloud.com')
         self.bucket_name = bucket
         self.bucket = self.s3_source.Bucket(bucket)
 
@@ -109,7 +109,6 @@ def move_big_file(s3, old_file_path, new_file_path, keyname, threadcnt):
     print("upload {keyname} with {tcnt} threads use {time} seconds".format(keyname=keyname, tcnt=threadcnt, time=time2-time1))
     key = s3.bucket.get_key(keyname)
 
-    download_filepath = path.join(".", keyname)
     down_time1= time.time()
     download_file_multipart(s3, key, new_file_path, threadcnt)
     down_time2= time.time()
@@ -121,6 +120,7 @@ if __name__ == '__main__':
 
     cos_access_key = "test"
     cos_secret_key = "123456"
+    bucket = "test"
     host = "*****"
 
     old_filepath = "/old_path/big.file"
@@ -128,6 +128,7 @@ if __name__ == '__main__':
     keyname = "big.file"
 
     threadcnt = 8
+    s3 = S3(bucket)
 
     move_big_file(s3, old_filepath, new_filepath, keyname, threadcnt)
 
